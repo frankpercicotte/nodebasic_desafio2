@@ -10,7 +10,22 @@ app.use(cors());
 const users = [];
 
 function checksExistsUserAccount(request, response, next) {
-  // Complete aqui
+  const {username} = request.headers || ""; 
+
+  if (!username){
+    return response.status(400).send({"error": `Required in headers a username!`})
+  }  
+
+  const checkUsername = users.find(elm => elm.username === username)  
+  
+  if (!checkUsername){
+    return response.status(404).send({"error": `Username ${username} not exist!`})
+  }
+
+  request.username = username
+  return next()
+
+
 }
 
 function checksCreateTodosUserAvailability(request, response, next) {
@@ -22,7 +37,16 @@ function checksTodoExists(request, response, next) {
 }
 
 function findUserById(request, response, next) {
-  // Complete aqui
+  userId = request.params.id
+
+  const checkId = users.find(elm => elm.id === userId)  
+  
+  if (!checkId){
+    return response.status(404).send({"error": `Id ${checkId} not exist!`})
+  }
+
+  request.username = checkId.username
+  return next()
 }
 
 app.post('/users', (request, response) => {
