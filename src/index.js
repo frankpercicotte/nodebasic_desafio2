@@ -16,8 +16,7 @@ function checksExistsUserAccount(request, response, next) {
     return response.status(400).json({"error": `Required in headers a username!`})
   }  
 
-  const user = users.find(elm => elm.username === username)  
-  
+  const user = users.find(elm => elm.username === username)    
   if (!user){
     return response.status(404).json({"error": `Username ${username} not exist!`})
   }
