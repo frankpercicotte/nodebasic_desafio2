@@ -28,14 +28,9 @@ function checksExistsUserAccount(request, response, next) {
 
 function checksCreateTodosUserAvailability(request, response, next) {
   const {user} = request
-  const pro = user.pro
-
-  if (pro){
-    return next()
-  }
 
   const qtyTodos = user.todos.length 
-  if (qtyTodos > 9) {
+  if ( !user.pro && qtyTodos > 9) {
     return response.status(403).json({"error": `Free account max todos is 10. You have ${qtyTodos}`}) 
   }
 
