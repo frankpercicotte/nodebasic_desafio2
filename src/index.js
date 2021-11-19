@@ -13,27 +13,58 @@ function checksExistsUserAccount(request, response, next) {
   const {username} = request.headers || ""; 
 
   if (!username){
-    return response.status(400).send({"error": `Required in headers a username!`})
+    return response.status(400).json({"error": `Required in headers a username!`})
   }  
 
-  const checkUsername = users.find(elm => elm.username === username)  
+  const user = users.find(elm => elm.username === username)  
   
-  if (!checkUsername){
-    return response.status(404).send({"error": `Username ${username} not exist!`})
+  if (!user){
+    return response.status(404).json({"error": `Username ${username} not exist!`})
   }
 
-  request.username = username
+  request.user = user
   return next()
-
-
 }
 
 function checksCreateTodosUserAvailability(request, response, next) {
-  // Complete aqui
+  const {user} = request
+  const pro = user.pro
+
+  if (pro){
+    return next()
+  }
+
+  const qtyTodos = user.todos.length 
+  if (qtyTodos > 9) {
+    return response.status(403).json({"error": `Free account max todos is 10. You have ${qtyTodos}`}) 
+  }
+
+  return next()
 }
 
 function checksTodoExists(request, response, next) {
-  // Complete aqui
+  const {username} = request.headers || "";
+  const todoId = request.params.id
+
+  const user = users.find(elm => elm.username === username)    
+  if (!user){
+    return response.status(404).json({"error": `Username ${username} not exist!`})
+  }
+
+  if(!validate(todoId)){
+    return response.status(400).json({"error": `Invalid id,should be uuid v4`})
+  }
+
+  const todo = user.todos.find(elm => elm.id === todoId)
+  if (!todo){
+    return response.status(404).json({"error": `Todo id ${todoId} not exist!`})
+  }
+
+  request.user = user
+  request.todo = todo  
+
+  return next()
+
 }
 
 function findUserById(request, response, next) {
@@ -42,10 +73,10 @@ function findUserById(request, response, next) {
   const checkId = users.find(elm => elm.id === userId)  
   
   if (!checkId){
-    return response.status(404).send({"error": `Id ${checkId} not exist!`})
+    return response.status(404).json({"error": `Id ${checkId} not exist!`})
   }
 
-  request.username = checkId.username
+  request.user = checkId
   return next()
 }
 
